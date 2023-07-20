@@ -1,5 +1,7 @@
+import random
 import pygame
 from pygame.sprite import Sprite
+from game.components.bullets.bullet import Bullet
 from game.utils.constants import SPACESHIP, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
@@ -15,9 +17,11 @@ class SpaceShip(Sprite):
         self.rect = self.image.get_rect()  # Al instanciar el metodo get_rect() tenemos acceso a varias funcionalidades
         self.rect.x = self.X_POS
         self.rect.y = self.Y_POS
+        self.type = "player"
+        self.shooting_time = random.randint(30, 50)
 
-    def update(self, user_input):
-        # MOvimientos diagonales
+    def update(self, user_input, game):
+        self.shoot(game.bullet_manager)
         # Diagonalmente hacia la izquierda y arriba
         if user_input[pygame.K_UP] and user_input[pygame.K_LEFT]:
             if self.rect.top > SCREEN_HEIGHT // 2 and self.rect.left > -self.SPACESHIP_WIDTH:
@@ -57,7 +61,6 @@ class SpaceShip(Sprite):
                 self.rect.x = -self.SPACESHIP_WIDTH
 
         # Movimientos rectilineos
-        # mover a la izquierda
         elif user_input[pygame.K_LEFT]:
             # si la parte izqueirda de la nave esta dentro del
             if self.rect.left > -self.SPACESHIP_WIDTH: 
@@ -78,3 +81,10 @@ class SpaceShip(Sprite):
 
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
+
+    def shoot(self, bullet_manager):
+        current_time = pygame.time.get_ticks()
+        if self.shooting_time <= current_time:
+            bullet = Bullet(self)
+            bullet_manager.add_bullet(bullet)
+            self.shooting_time -= random.randint(30, 50)
